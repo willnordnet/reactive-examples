@@ -2,10 +2,12 @@ package reactive.examples;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.WebApplicationType;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-public class Application {
+@SpringBootApplication
+public class ReactiveApplication {
     public static void main(String[] args) {
-        SpringApplication app = new SpringApplication(Application.class);
+        SpringApplication app = new SpringApplication(ReactiveApplication.class);
         app.setWebApplicationType(WebApplicationType.REACTIVE);
         app.run(args);
     }
