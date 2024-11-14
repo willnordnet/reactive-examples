@@ -19,7 +19,7 @@ public class JuiceReactiveController {
 
 
     @PostMapping("juice")
-    public Mono<JuiceResponse> process2(@RequestBody JuiceRequest request) {
+    public Mono<JuiceResponse> orderJuice(@RequestBody JuiceRequest request) {
         return startOrder(request.username())
                 .flatMap(orderId -> blendApple(orderId, request.apple())
                         .zipWith(squeezeOrange(orderId, request.orange()))
@@ -30,7 +30,7 @@ public class JuiceReactiveController {
     }
 
     @PostMapping("juiceWithIntermediateDTO")
-    public Mono<JuiceResponse> process(@RequestBody JuiceRequest request) {
+    public Mono<JuiceResponse> orderJuice2(@RequestBody JuiceRequest request) {
         return startOrder(request.username())
                 .map(orderId -> new IntermediateDTO(orderId, null, request.apple(), request.orange(), null, null))
                 .flatMap(intermediateDTO -> blendApple(intermediateDTO.orderId(), intermediateDTO.appleJuice())

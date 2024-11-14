@@ -16,7 +16,7 @@ public class JuiceServletController {
     private static final Logger log = LoggerFactory.getLogger(JuiceServletController.class);
 
     @PostMapping("juice")
-    public JuiceResponse process(@RequestBody JuiceRequest request) {
+    public JuiceResponse orderJuice(@RequestBody JuiceRequest request) {
         var orderId = startOrder(request.username());
         var appleJuice = blendApple(orderId, request.apple());
         var orangeJuice = squeezeOrange(orderId, request.orange());

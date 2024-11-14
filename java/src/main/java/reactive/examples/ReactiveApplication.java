@@ -4,6 +4,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+// The application should run without spring-boot-starter-web
 @SpringBootApplication
 public class ReactiveApplication {
     public static void main(String[] args) {
