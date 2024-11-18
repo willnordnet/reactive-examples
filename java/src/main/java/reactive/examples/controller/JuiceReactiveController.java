@@ -10,6 +10,8 @@ import reactive.examples.type.JuiceRequest;
 import reactive.examples.type.JuiceResponse;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
+
 @RequestMapping("reactive")
 @RestController
 public class JuiceReactiveController {
@@ -17,6 +19,18 @@ public class JuiceReactiveController {
 
     private static final Logger log = LoggerFactory.getLogger(JuiceReactiveController.class);
 
+
+    @PostMapping("blend")
+    public Mono<JuiceResponse> blend(@RequestBody JuiceRequest request) {
+
+        int cores = Runtime.getRuntime().availableProcessors();
+        System.out.println("Number of CPU cores: " + cores);
+
+        return blendApple(request.apple())
+                .zipWith(squeezeOrange(request.orange()))
+                .flatMap(tuple -> prepareJuice(tuple.getT1(), tuple.getT2()))
+                .map(JuiceResponse::new);
+    }
 
     @PostMapping("juice")
     public Mono<JuiceResponse> orderJuice(@RequestBody JuiceRequest request) {
@@ -60,6 +74,16 @@ public class JuiceReactiveController {
         return Mono.just("Orange juice");
     }
 
+    private Mono<String> blendApple(String apple) {
+        log.info("Blending apple {}", apple);
+        return Mono.delay(Duration.ofSeconds(1)).then(Mono.just("Apple juice"));
+    }
+
+    private Mono<String> squeezeOrange(String orange) {
+        log.info("Squeezing orance {}", orange);
+        return Mono.delay(Duration.ofSeconds(2)).then(Mono.just("Orange juice"));
+    }
+
     private Mono<String> findCup(String appleJuice, String orangeJuice) {
         log.info("Finding a cup for appleJuice {} and orangeJuice {}", appleJuice, orangeJuice);
         return Mono.just("Super big cup");
@@ -68,6 +92,11 @@ public class JuiceReactiveController {
     private Mono<Void> print(String username, String cup) {
         log.info("Printing username {} on cup {}", username, cup);
         return Mono.empty();
+    }
+
+    private Mono<String> prepareJuice(String appleJuice, String orangeJuice) {
+        log.info("Preparing juice with appleJuice {} and orangeJuice {}", appleJuice, orangeJuice);
+        return Mono.just("Final juice");
     }
 
     private Mono<String> prepareJuice(String cup, String appleJuice, String orangeJuice, String orderId) {

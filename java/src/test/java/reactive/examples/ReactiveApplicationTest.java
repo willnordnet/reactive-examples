@@ -6,8 +6,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactive.examples.type.JuiceRequest;
+import reactive.examples.type.JuiceResponse;
 
 import java.util.stream.IntStream;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
 
 // Remove spring-boot-starter-web
 @SpringBootTest(classes = ReactiveApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -21,6 +25,55 @@ class ReactiveApplicationTest {
     @BeforeEach
     void setUp() {
         webTestClient = WebTestClient.bindToServer().baseUrl("http://localhost:" + port).build();
+    }
+
+    @Test
+    void blend2Fruits() {
+        long startTime = System.currentTimeMillis();
+
+        webTestClient.post()
+                .uri("reactive/blend")
+                .bodyValue(new JuiceRequest("username-1", "apple-1", "orange-1"))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .json("""
+                        {
+                            "juice": "Final juice"
+                        }""");
+        long endTime = System.currentTimeMillis();
+        long totalTime = endTime - startTime;
+        System.out.println("Total time used: " + totalTime + " ms");
+    }
+
+    @Test
+    void order2Juice() throws InterruptedException {
+
+//        int cores = Runtime.getRuntime().availableProcessors();
+//        System.out.println("Number of CPU cores: " + cores);
+
+        Runnable order = () -> webTestClient.post()
+                .uri("reactive/blend")
+                .bodyValue(new JuiceRequest("username-1", "apple-1", "orange-1"))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .json("""
+                        {
+                            "juice": "Final juice"
+                        }""");
+
+        long startTime = System.currentTimeMillis();
+
+        final Thread v1 = Thread.ofVirtual().start(order);
+        final Thread v2 = Thread.ofVirtual().start(order);
+
+        v1.join();
+        v2.join();
+
+        long endTime = System.currentTimeMillis();
+        long totalTime = endTime - startTime;
+        System.out.println("Total time used: " + totalTime + " ms");
     }
 
     @Test
@@ -39,16 +92,22 @@ class ReactiveApplicationTest {
 
     @Test
     void orderJuiceKt() {
-        webTestClient.post()
+        final JuiceResponse result = webTestClient.post()
                 .uri("kt/reactive/juice")
                 .bodyValue(new JuiceRequest("username-1", "apple-1", "orange-1"))
+                .exchange().returnResult(JuiceResponse.class).getResponseBody().blockFirst();
+
+        assertThat(result.juice()).isEqualTo("Final juice");
+    }
+
+    @Test
+    void getHelloWorldKt() {
+        webTestClient.get()
+                .uri("kt/reactive/get")
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()
-                .json("""
-                        {
-                            "juice": "Final juice"
-                        }""");
+                .equals("Hello, World!");
     }
 
     @Test
