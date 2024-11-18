@@ -1,4 +1,4 @@
-package reactive.examples.type;
+package type;
 
 public record JuiceResponse(String juice) {
 

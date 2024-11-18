@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import reactive.examples.type.JuiceRequest;
-import reactive.examples.type.JuiceResponse;
+import type.JuiceRequest;
+import type.JuiceResponse;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
@@ -22,10 +22,6 @@ public class JuiceReactiveController {
 
     @PostMapping("blend")
     public Mono<JuiceResponse> blend(@RequestBody JuiceRequest request) {
-
-        int cores = Runtime.getRuntime().availableProcessors();
-        System.out.println("Number of CPU cores: " + cores);
-
         return blendApple(request.apple())
                 .zipWith(squeezeOrange(request.orange()))
                 .flatMap(tuple -> prepareJuice(tuple.getT1(), tuple.getT2()))

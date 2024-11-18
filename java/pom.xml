@@ -11,7 +11,6 @@
     <properties>
         <java.version>22</java.version>
         <kotlin.version>2.0.21</kotlin.version>
-        <spring-boot.run.jvmArguments>-XX:ActiveProcessorCount=1</spring-boot.run.jvmArguments>
     </properties>
 
     <dependencyManagement>
@@ -33,10 +32,10 @@
             <artifactId>spring-boot-starter-webflux</artifactId>
         </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>org.springframework.boot</groupId>-->
-<!--            <artifactId>spring-boot-starter-web</artifactId>-->
-<!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>org.springframework.boot</groupId>-->
+        <!--            <artifactId>spring-boot-starter-web</artifactId>-->
+        <!--        </dependency>-->
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -147,11 +146,4 @@
             </plugin>
         </plugins>
     </build>
-    <repositories>
-        <repository>
-            <id>maven_central</id>
-            <name>Maven Central</name>
-            <url>https://repo.maven.apache.org/maven2/</url>
-        </repository>
-    </repositories>
 </project>

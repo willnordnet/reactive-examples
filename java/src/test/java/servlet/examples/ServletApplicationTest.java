@@ -5,8 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.web.client.RestClient;
-import reactive.examples.type.JuiceRequest;
-import reactive.examples.type.JuiceResponse;
+import type.JuiceRequest;
+import type.JuiceResponse;
 
 import java.util.stream.IntStream;
 
