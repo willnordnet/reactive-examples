@@ -42,6 +42,7 @@ public class JuiceReactiveController {
         log.info("Checking if {} is a prime number", number);
         for (long i = 2; i <= number; i++) {
             if (number % i == 0) {
+                log.info("{} is a prime number", number);
                 return Mono.just(true);
             }
         }
@@ -75,6 +76,7 @@ public class JuiceReactiveController {
                 .flatMap(intermediateDTO5 -> prepareJuice(intermediateDTO5.cup, intermediateDTO5.appleJuice, intermediateDTO5.orangeJuice, intermediateDTO5.orderId)
                         .map(JuiceResponse::new));
     }
+
 
     private Mono<String> startOrder(String username) {
         log.info("Starting order for username {}", username);
