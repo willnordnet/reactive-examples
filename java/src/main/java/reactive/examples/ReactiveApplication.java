@@ -28,13 +28,13 @@ public class ReactiveApplication {
     @EventListener
     public void onApplicationReady(ApplicationReadyEvent event) throws NoSuchFieldException, IllegalAccessException {
         int cores = Runtime.getRuntime().availableProcessors();
-        System.out.println("Number of CPU cores: " + cores);
+        System.out.println("========== Number of CPU cores: " + cores);
 
         LoopResources loopResources = loopResources();
         Field workerCountField = loopResources.getClass().getDeclaredField("workerCount");
         workerCountField.setAccessible(true);
         int workerCount = (int) workerCountField.get(loopResources);
-        System.out.println("Number of WebFlux worker threads: " + workerCount);
+        System.out.println("========== Number of WebFlux worker threads: " + workerCount);
     }
 }
 

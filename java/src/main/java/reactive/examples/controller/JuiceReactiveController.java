@@ -6,9 +6,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import type.JuiceRequest;
 import type.JuiceResponse;
-import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 
@@ -20,15 +21,35 @@ public class JuiceReactiveController {
     private static final Logger log = LoggerFactory.getLogger(JuiceReactiveController.class);
 
 
-    @PostMapping("blend")
-    public Mono<JuiceResponse> blend(@RequestBody JuiceRequest request) {
+    @PostMapping("juice")
+    public Mono<JuiceResponse> juice(@RequestBody JuiceRequest request) {
         return blendApple(request.apple())
                 .zipWith(squeezeOrange(request.orange()))
                 .flatMap(tuple -> prepareJuice(tuple.getT1(), tuple.getT2()))
                 .map(JuiceResponse::new);
     }
 
-    @PostMapping("juice")
+    @PostMapping("/flux/juice")
+    public Flux<JuiceResponse> fluxJuice(@RequestBody JuiceRequest request) {
+        return blendAppleFlux(request.apple())
+                .zipWith(squeezeOrangeFlux(request.orange()))
+                .flatMap(tuple -> prepareJuice(tuple.getT1(), tuple.getT2()))
+                .map(JuiceResponse::new);
+    }
+
+    @PostMapping("prime")
+    public Mono<Boolean> prime(@RequestBody long number) {
+        log.info("Checking if {} is a prime number", number);
+        for (long i = 2; i <= number; i++) {
+            if (number % i == 0) {
+                return Mono.just(true);
+            }
+        }
+        return Mono.just(false);
+    }
+
+
+    @PostMapping("juice2")
     public Mono<JuiceResponse> orderJuice(@RequestBody JuiceRequest request) {
         return startOrder(request.username())
                 .flatMap(orderId -> blendApple(orderId, request.apple())
@@ -75,9 +96,26 @@ public class JuiceReactiveController {
         return Mono.delay(Duration.ofSeconds(1)).then(Mono.just("Apple juice"));
     }
 
+
     private Mono<String> squeezeOrange(String orange) {
         log.info("Squeezing orance {}", orange);
         return Mono.delay(Duration.ofSeconds(2)).then(Mono.just("Orange juice"));
+    }
+
+    private Flux<String> blendAppleFlux(String apple) {
+        log.info("Blending apple flux {}", apple);
+        return Flux.interval(Duration.ofSeconds(1))
+                .map(i -> "apple " + i)
+                .doOnNext(s -> log.info("Blending {}", s))
+                .take(5);
+    }
+
+    private Flux<String> squeezeOrangeFlux(String orange) {
+        log.info("Squeezing orange flux {}", orange);
+        return Flux.interval(Duration.ofSeconds(2))
+                .map(i -> "orange " + i)
+                .doOnNext(s -> log.info("Squeezing {}", s))
+                .take(5);
     }
 
     private Mono<String> findCup(String appleJuice, String orangeJuice) {

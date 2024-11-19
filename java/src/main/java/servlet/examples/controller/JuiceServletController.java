@@ -18,7 +18,7 @@ public class JuiceServletController {
 
     private static final Logger log = LoggerFactory.getLogger(JuiceServletController.class);
 
-    @PostMapping("blend")
+    @PostMapping("juice")
     public JuiceResponse blend(@RequestBody JuiceRequest request) {
         var appleJuice = blendApple(request.apple());
         var orangeJuice = squeezeOrange(request.orange());
@@ -26,7 +26,7 @@ public class JuiceServletController {
         return new JuiceResponse(juice);
     }
 
-    @PostMapping("blendCF")
+    @PostMapping("cf/juice")
     public JuiceResponse blendCF(@RequestBody JuiceRequest request) {
         CompletableFuture<String> appleJuice = CompletableFuture.supplyAsync(() -> blendApple(request.apple()));
         CompletableFuture<String> orangeJuice = CompletableFuture.supplyAsync(() -> squeezeOrange(request.orange()));
@@ -34,7 +34,7 @@ public class JuiceServletController {
         return new JuiceResponse(juice);
     }
 
-    @PostMapping("blendVT")
+    @PostMapping("vt/juice")
     public JuiceResponse blendVT(@RequestBody JuiceRequest request) throws InterruptedException {
         AtomicReference<String> appleJuice = new AtomicReference<>();
         final Thread vt1 = Thread.ofVirtual().start(() -> appleJuice.set(blendApple(request.apple())));
@@ -49,7 +49,7 @@ public class JuiceServletController {
         return new JuiceResponse(juice);
     }
 
-    @PostMapping("juice")
+    @PostMapping("juice2")
     public JuiceResponse orderJuice(@RequestBody JuiceRequest request) {
         var orderId = startOrder(request.username());
         var appleJuice = blendApple(orderId, request.apple());

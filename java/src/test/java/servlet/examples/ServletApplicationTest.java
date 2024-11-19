@@ -29,11 +29,11 @@ class ServletApplicationTest {
 
 
     @Test
-    void blend2FruitsSequential() {
+    void orderJuice() {
         long startTime = System.currentTimeMillis();
 
         final JuiceResponse result = restClient.post()
-                .uri("servlet/blend")
+                .uri("servlet/juice")
                 .body(new JuiceRequest("username-1", "apple-1", "orange-1"))
                 .retrieve()
                 .toEntity(JuiceResponse.class)
@@ -47,11 +47,11 @@ class ServletApplicationTest {
     }
 
     @Test
-    void blend2FruitsCF() {
+    void orderJuiceCF() {
         long startTime = System.currentTimeMillis();
 
         final JuiceResponse result = restClient.post()
-                .uri("servlet/blendCF")
+                .uri("servlet/cf/juice")
                 .body(new JuiceRequest("username-1", "apple-1", "orange-1"))
                 .retrieve()
                 .toEntity(JuiceResponse.class)
@@ -65,11 +65,11 @@ class ServletApplicationTest {
     }
 
     @Test
-    void blend2FruitsVT() {
+    void orderJuiceVT() {
         long startTime = System.currentTimeMillis();
 
         final JuiceResponse result = restClient.post()
-                .uri("servlet/blendVT")
+                .uri("servlet/vt/juice")
                 .body(new JuiceRequest("username-1", "apple-1", "orange-1"))
                 .retrieve()
                 .toEntity(JuiceResponse.class)
@@ -84,10 +84,10 @@ class ServletApplicationTest {
 
 
     @Test
-    void order2JuiceBlendVT() throws InterruptedException {
+    void order2JuiceVT() throws InterruptedException {
         final Runnable orderJuice = () -> {
             final JuiceResponse result = restClient.post()
-                    .uri("servlet/blendVT")
+                    .uri("servlet/vt/juice")
                     .body(new JuiceRequest("username-1", "apple-1", "orange-1"))
                     .retrieve()
                     .toEntity(JuiceResponse.class)
@@ -110,7 +110,7 @@ class ServletApplicationTest {
 
 
     @Test
-    void orderJuice() {
+    void orderJuice2() {
         final JuiceResponse result = restClient.post()
                 .uri("servlet/juice")
                 .body(new JuiceRequest("username-1", "apple-1", "orange-1"))
@@ -123,7 +123,7 @@ class ServletApplicationTest {
     }
 
     @Test
-    void order10Juice() throws InterruptedException {
+    void order10Juice2() throws InterruptedException {
         IntStream.range(0, 10).forEach(i -> {
             String username = "username-" + i;
             Thread.ofVirtual().start(() -> {

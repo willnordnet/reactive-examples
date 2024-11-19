@@ -1,4 +1,4 @@
-package reactive.examples.controller.JuiceReactiveController;
+package reactive.examples.controller;
 
 
 import kotlinx.coroutines.flow.Flow
@@ -29,14 +29,16 @@ class JuiceReactiveKtController {
         emit(JuiceResponse(juice))
     }
 
-    @GetMapping("get")
-    fun get(): Flow<String> {
-
+    @GetMapping("flow/juice")
+    fun flowJuice(): Flow<JuiceResponse> {
         return flow {
-            log("Hello")
-            emit("Hello")
+            emit(JuiceResponse("Final juice"))
         }
+    }
 
+    @GetMapping("juice")
+    fun get(): JuiceResponse {
+        return JuiceResponse("Final juice")
     }
 
     private fun log(message: String) {
