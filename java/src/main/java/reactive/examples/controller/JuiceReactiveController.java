@@ -29,7 +29,7 @@ public class JuiceReactiveController {
                 .map(JuiceResponse::new);
     }
 
-    @PostMapping("/flux/juice")
+    @PostMapping(path = "/flux/juice", produces = {"application/stream+json", "application/json"})
     public Flux<JuiceResponse> fluxJuice(@RequestBody JuiceRequest request) {
         return blendAppleFlux(request.apple())
                 .zipWith(squeezeOrangeFlux(request.orange()))
@@ -131,8 +131,8 @@ public class JuiceReactiveController {
     }
 
     private Mono<String> prepareJuice(String appleJuice, String orangeJuice) {
-        log.info("Preparing juice with appleJuice {} and orangeJuice {}", appleJuice, orangeJuice);
-        return Mono.just("Final juice");
+        log.info("Preparing juice with {} and {}", appleJuice, orangeJuice);
+        return Mono.just("Juice with %s and %s".formatted(appleJuice, orangeJuice));
     }
 
     private Mono<String> prepareJuice(String cup, String appleJuice, String orangeJuice, String orderId) {

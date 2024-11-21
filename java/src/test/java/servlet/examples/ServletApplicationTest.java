@@ -1,5 +1,6 @@
 package servlet.examples;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,16 +23,22 @@ class ServletApplicationTest {
     @LocalServerPort
     private int port;
 
+    private long startTime;
+
+
     @BeforeEach
     void setUp() {
         restClient = RestClient.builder().baseUrl("http://localhost:" + port).build();
+        startTime = System.currentTimeMillis();
     }
 
+    @AfterEach
+    void afterEach() {
+        System.out.println("======== Total time used: " + (System.currentTimeMillis() - startTime) + " ms");
+    }
 
     @Test
     void orderJuice() {
-        long startTime = System.currentTimeMillis();
-
         final JuiceResponse result = restClient.post()
                 .uri("servlet/juice")
                 .body(new JuiceRequest("username-1", "apple-1", "orange-1"))
@@ -40,16 +47,10 @@ class ServletApplicationTest {
                 .getBody();
 
         assertThat(result.juice()).isEqualTo("Final juice");
-
-        long endTime = System.currentTimeMillis();
-        long totalTime = endTime - startTime;
-        System.out.println("Total time used: " + totalTime + " ms");
     }
 
     @Test
     void orderJuiceCF() {
-        long startTime = System.currentTimeMillis();
-
         final JuiceResponse result = restClient.post()
                 .uri("servlet/cf/juice")
                 .body(new JuiceRequest("username-1", "apple-1", "orange-1"))
@@ -58,16 +59,10 @@ class ServletApplicationTest {
                 .getBody();
 
         assertThat(result.juice()).isEqualTo("Final juice");
-
-        long endTime = System.currentTimeMillis();
-        long totalTime = endTime - startTime;
-        System.out.println("Total time used: " + totalTime + " ms");
     }
 
     @Test
     void orderJuiceVT() {
-        long startTime = System.currentTimeMillis();
-
         final JuiceResponse result = restClient.post()
                 .uri("servlet/vt/juice")
                 .body(new JuiceRequest("username-1", "apple-1", "orange-1"))
@@ -76,13 +71,10 @@ class ServletApplicationTest {
                 .getBody();
 
         assertThat(result.juice()).isEqualTo("Final juice");
-
-        long endTime = System.currentTimeMillis();
-        long totalTime = endTime - startTime;
-        System.out.println("Total time used: " + totalTime + " ms");
     }
 
 
+    // Note: The num of tomcat thread pool size only takes effect when it's a servlet application
     @Test
     void order2JuiceVT() throws InterruptedException {
         final Runnable orderJuice = () -> {
@@ -96,16 +88,10 @@ class ServletApplicationTest {
             assertThat(result.juice()).isEqualTo("Final juice");
         };
 
-        long startTime = System.currentTimeMillis();
-
         final Thread vt1 = Thread.ofVirtual().start(orderJuice);
         final Thread vt2 = Thread.ofVirtual().start(orderJuice);
         vt1.join();
         vt2.join();
-
-        long endTime = System.currentTimeMillis();
-        long totalTime = endTime - startTime;
-        System.out.println("Total time used: " + totalTime + " ms");
     }
 
 

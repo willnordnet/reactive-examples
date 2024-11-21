@@ -5,7 +5,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import reactor.test.StepVerifier;
 import type.JuiceRequest;
 import type.JuiceResponse;
 
@@ -52,7 +54,7 @@ class ReactiveApplicationTest {
                 .expectBody()
                 .json("""
                         {
-                            "juice": "Final juice"
+                            "juice": "Juice with Apple juice and Orange juice"
                         }""");
     }
 
@@ -106,16 +108,48 @@ class ReactiveApplicationTest {
     }
 
     @Test
-    void orderJuiceFlux() {
+    void orderListJuiceFlux() {
         webTestClient.post()
                 .uri("reactive/flux/juice")
                 .bodyValue(new JuiceRequest("username-1", "apple-5", "orange-5"))
+                .accept(MediaType.APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()
                 .json("""
-                        [{"juice":"Final juice"},{"juice":"Final juice"},{"juice":"Final juice"},{"juice":"Final juice"},{"juice":"Final juice"}]""");
+                        [
+                          {
+                            "juice": "Juice with apple 0 and orange 0"
+                          },
+                          {
+                            "juice": "Juice with apple 1 and orange 1"
+                          },
+                          {
+                            "juice": "Juice with apple 2 and orange 2"
+                          },
+                          {
+                            "juice": "Juice with apple 3 and orange 3"
+                          },
+                          {
+                            "juice": "Juice with apple 4 and orange 4"
+                          }
+                        ]""");
+    }
 
+    @Test
+    void orderStreamJuiceFlux() {
+        StepVerifier.create(webTestClient.post()
+                        .uri("reactive/flux/juice")
+                        .bodyValue(new JuiceRequest("username-1", "apple-5", "orange-5"))
+                        .exchange()
+                        .returnResult(JuiceResponse.class)
+                        .getResponseBody())
+                .consumeNextWith(juice -> System.out.println("Received a " + juice))
+                .consumeNextWith(juice -> System.out.println("Received a " + juice))
+                .consumeNextWith(juice -> System.out.println("Received a " + juice))
+                .consumeNextWith(juice -> System.out.println("Received a " + juice))
+                .consumeNextWith(juice -> System.out.println("Received a " + juice))
+                .verifyComplete();
     }
 
     // -XX:ActiveProcessorCount=1

@@ -19,7 +19,7 @@ public class JuiceServletController {
     private static final Logger log = LoggerFactory.getLogger(JuiceServletController.class);
 
     @PostMapping("juice")
-    public JuiceResponse blend(@RequestBody JuiceRequest request) {
+    public JuiceResponse juice(@RequestBody JuiceRequest request) {
         var appleJuice = blendApple(request.apple());
         var orangeJuice = squeezeOrange(request.orange());
         var juice = prepareJuice(appleJuice, orangeJuice);
@@ -30,6 +30,7 @@ public class JuiceServletController {
     public JuiceResponse blendCF(@RequestBody JuiceRequest request) {
         CompletableFuture<String> appleJuice = CompletableFuture.supplyAsync(() -> blendApple(request.apple()));
         CompletableFuture<String> orangeJuice = CompletableFuture.supplyAsync(() -> squeezeOrange(request.orange()));
+
         var juice = prepareJuice(appleJuice.join(), orangeJuice.join());
         return new JuiceResponse(juice);
     }
@@ -71,7 +72,7 @@ public class JuiceServletController {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        log.info("Blending apple {}", apple);
+        log.info("Blending {}", apple);
         return "Apple juice";
     }
 
@@ -81,17 +82,17 @@ public class JuiceServletController {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        log.info("Squeezing orange {}", orange);
+        log.info("Squeezing {}", orange);
         return "Orange juice";
     }
 
     private String blendApple(String orderId, String apple) {
-        log.info("Blending apple {} for order {}", apple, orderId);
+        log.info("Blending {} for order {}", apple, orderId);
         return "Apple juice";
     }
 
     private String squeezeOrange(String orderId, String orange) {
-        log.info("Squeezing orange {} for order {}", orange, orderId);
+        log.info("Squeezing {} for order {}", orange, orderId);
         return "Orange juice";
     }
 
@@ -105,12 +106,12 @@ public class JuiceServletController {
     }
 
     private String prepareJuice(String appleJuice, String orangeJuice) {
-        log.info("Preparing juice with appleJuice {}, orangeJuice {}", appleJuice, orangeJuice);
+        log.info("Preparing juice with {}, {}", appleJuice, orangeJuice);
         return "Final juice";
     }
 
     private String prepareJuice(String cup, String appleJuice, String orangeJuice, String orderId) {
-        log.info("Preparing juice with cup {}, appleJuice {}, orangeJuice {} and orderId {}", cup, appleJuice, orangeJuice, orderId);
+        log.info("Preparing juice with cup {}, {}, {} and orderId {}", cup, appleJuice, orangeJuice, orderId);
         return "Final juice";
     }
 }
