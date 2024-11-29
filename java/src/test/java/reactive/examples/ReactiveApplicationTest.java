@@ -12,6 +12,7 @@ import type.JuiceRequest;
 import type.JuiceResponse;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -215,15 +216,16 @@ class ReactiveApplicationTest {
 
     @Test
     void getFlowJuiceKt() {
-        webTestClient.get()
+        List<String> responseBody = webTestClient.get()
                 .uri("kt/reactive/flow/juice")
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody()
-                .json("""
-                        {
-                            "juice":"Final juice"
-                        }""");
+                .returnResult(String.class)
+                .getResponseBody()
+                .collectList()
+                .block();
+        assertThat(responseBody).isEqualTo("Final juice");
+
     }
 
     @Test

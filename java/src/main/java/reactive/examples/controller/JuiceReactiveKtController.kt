@@ -30,11 +30,11 @@ class JuiceReactiveKtController {
     }
 
     @GetMapping("flow/juice")
-    fun flowJuice(): Flow<JuiceResponse> {
-        return flow {
-            emit(JuiceResponse("Final juice"))
+    fun flowJuice(): Flow<String> =
+        flow {
+            log("Starting flow order")
+            emit("Final juice")
         }
-    }
 
     @GetMapping("juice")
     fun get(): JuiceResponse {
