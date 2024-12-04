@@ -27,7 +27,7 @@ public class JuiceServletController {
     }
 
     @PostMapping("cf/juice")
-    public JuiceResponse blendCF(@RequestBody JuiceRequest request) {
+    public JuiceResponse juiceCF(@RequestBody JuiceRequest request) {
         CompletableFuture<String> appleJuice = CompletableFuture.supplyAsync(() -> blendApple(request.apple()));
         CompletableFuture<String> orangeJuice = CompletableFuture.supplyAsync(() -> squeezeOrange(request.orange()));
 
@@ -36,7 +36,7 @@ public class JuiceServletController {
     }
 
     @PostMapping("vt/juice")
-    public JuiceResponse blendVT(@RequestBody JuiceRequest request) throws InterruptedException {
+    public JuiceResponse juiceVT(@RequestBody JuiceRequest request) throws InterruptedException {
         AtomicReference<String> appleJuice = new AtomicReference<>();
         final Thread vt1 = Thread.ofVirtual().start(() -> appleJuice.set(blendApple(request.apple())));
 

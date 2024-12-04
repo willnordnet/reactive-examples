@@ -92,7 +92,7 @@ class ReactiveApplicationTest {
                 .expectBody()
                 .json("""
                         {
-                            "juice": "Final juice"
+                            "juice": "Juice with Apple juice and Orange juice"
                         }""");
 
         final Thread v1 = Thread.ofVirtual().start(order);
