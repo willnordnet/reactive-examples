@@ -20,7 +20,7 @@ public class JuiceReactiveController {
 
     private static final Logger log = LoggerFactory.getLogger(JuiceReactiveController.class);
 
-
+    // Reactive and declarative
     @PostMapping("juice")
     public Mono<JuiceResponse> juice(@RequestBody JuiceRequest request) {
         return blendApple(request.apple())
@@ -29,16 +29,9 @@ public class JuiceReactiveController {
                 .map(JuiceResponse::new);
     }
 
-    @PostMapping(path = "/flux/juice", produces = {"application/stream+json", "application/json"})
-    public Flux<JuiceResponse> fluxJuice(@RequestBody JuiceRequest request) {
-        return blendAppleFlux(request.apple())
-                .zipWith(squeezeOrangeFlux(request.orange()))
-                .flatMap(tuple -> prepareJuice(tuple.getT1(), tuple.getT2()))
-                .map(JuiceResponse::new);
-    }
-
-    @PostMapping("prime")
-    public Mono<Boolean> prime(@RequestBody long number) {
+    // Computation heavy
+    @PostMapping("primeJuice")
+    public Mono<Boolean> primeJuice(@RequestBody long number) {
         log.info("Checking if {} is a prime number", number);
         for (long i = 2; i <= number; i++) {
             if (number % i == 0) {
@@ -47,6 +40,15 @@ public class JuiceReactiveController {
             }
         }
         return Mono.just(false);
+    }
+
+    // Batch or Stream
+    @PostMapping(path = "/flux/juice", produces = {"application/stream+json", "application/json"})
+    public Flux<JuiceResponse> fluxJuice(@RequestBody JuiceRequest request) {
+        return blendAppleFlux(request.apple())
+                .zipWith(squeezeOrangeFlux(request.orange()))
+                .flatMap(tuple -> prepareJuice(tuple.getT1(), tuple.getT2()))
+                .map(JuiceResponse::new);
     }
 
 
@@ -93,17 +95,19 @@ public class JuiceReactiveController {
         return Mono.just("Orange juice");
     }
 
+    // IO heavy
     private Mono<String> blendApple(String apple) {
         log.info("Blending apple {}", apple);
         return Mono.delay(Duration.ofSeconds(1)).then(Mono.just("Apple juice"));
     }
 
-
+    // IO heavy
     private Mono<String> squeezeOrange(String orange) {
         log.info("Squeezing orance {}", orange);
         return Mono.delay(Duration.ofSeconds(2)).then(Mono.just("Orange juice"));
     }
 
+    // Blend 5 apples in 5s
     private Flux<String> blendAppleFlux(String apple) {
         log.info("Blending apple flux {}", apple);
         return Flux.interval(Duration.ofSeconds(1))
@@ -112,6 +116,7 @@ public class JuiceReactiveController {
                 .take(5);
     }
 
+    // Squeeze 5 oranges in 10s
     private Flux<String> squeezeOrangeFlux(String orange) {
         log.info("Squeezing orange flux {}", orange);
         return Flux.interval(Duration.ofSeconds(2))

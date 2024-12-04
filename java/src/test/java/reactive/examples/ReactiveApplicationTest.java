@@ -109,7 +109,46 @@ class ReactiveApplicationTest {
     }
 
     @Test
-    void orderListJuiceFlux() {
+    void primeJuice() throws InterruptedException {
+        Runnable task = () -> webTestClient.post()
+                .uri("reactive/primeJuice")
+                .bodyValue(1442968193)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Boolean.class)
+                .isEqualTo(true);
+
+        final Thread v1 = Thread.ofVirtual().start(task);
+
+        v1.join();
+    }
+
+    // -XX:ActiveProcessorCount=1
+    @Test
+    void prime5Juice() throws InterruptedException {
+        Runnable task = () -> webTestClient.post()
+                .uri("reactive/primeJuice")
+                .bodyValue(1442968193)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Boolean.class)
+                .isEqualTo(true);
+
+        final Thread v1 = Thread.ofVirtual().start(task);
+        final Thread v2 = Thread.ofVirtual().start(task);
+        final Thread v3 = Thread.ofVirtual().start(task);
+        final Thread v4 = Thread.ofVirtual().start(task);
+        final Thread v5 = Thread.ofVirtual().start(task);
+
+        v1.join();
+        v2.join();
+        v3.join();
+        v4.join();
+        v5.join();
+    }
+
+    @Test
+    void orderJuiceInBatch() {
         webTestClient.post()
                 .uri("reactive/flux/juice")
                 .bodyValue(new JuiceRequest("username-1", "apple-5", "orange-5"))
@@ -138,7 +177,7 @@ class ReactiveApplicationTest {
     }
 
     @Test
-    void orderStreamJuiceFlux() {
+    void orderJuiceInStream() {
         StepVerifier.create(webTestClient.post()
                         .uri("reactive/flux/juice")
                         .bodyValue(new JuiceRequest("username-1", "apple-5", "orange-5"))
@@ -151,30 +190,6 @@ class ReactiveApplicationTest {
                 .consumeNextWith(juice -> System.out.println("Received a " + juice))
                 .consumeNextWith(juice -> System.out.println("Received a " + juice))
                 .verifyComplete();
-    }
-
-    // -XX:ActiveProcessorCount=1
-    @Test
-    void prime5() throws InterruptedException {
-        Runnable task = () -> webTestClient.post()
-                .uri("reactive/prime")
-                .bodyValue(1442968193)
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody(Boolean.class)
-                .isEqualTo(true);
-
-        final Thread v1 = Thread.ofVirtual().start(task);
-        final Thread v2 = Thread.ofVirtual().start(task);
-        final Thread v3 = Thread.ofVirtual().start(task);
-        final Thread v4 = Thread.ofVirtual().start(task);
-        final Thread v5 = Thread.ofVirtual().start(task);
-
-        v1.join();
-        v2.join();
-        v3.join();
-        v4.join();
-        v5.join();
     }
 
     @Test

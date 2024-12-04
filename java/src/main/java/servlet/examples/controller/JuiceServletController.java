@@ -18,6 +18,7 @@ public class JuiceServletController {
 
     private static final Logger log = LoggerFactory.getLogger(JuiceServletController.class);
 
+    // Sequential and imperative
     @PostMapping("juice")
     public JuiceResponse juice(@RequestBody JuiceRequest request) {
         var appleJuice = blendApple(request.apple());
@@ -26,6 +27,7 @@ public class JuiceServletController {
         return new JuiceResponse(juice);
     }
 
+    // Concurrent and imperative
     @PostMapping("cf/juice")
     public JuiceResponse juiceCF(@RequestBody JuiceRequest request) {
         CompletableFuture<String> appleJuice = CompletableFuture.supplyAsync(() -> blendApple(request.apple()));
@@ -35,6 +37,7 @@ public class JuiceServletController {
         return new JuiceResponse(juice);
     }
 
+    // Concurrent and imperative
     @PostMapping("vt/juice")
     public JuiceResponse juiceVT(@RequestBody JuiceRequest request) throws InterruptedException {
         AtomicReference<String> appleJuice = new AtomicReference<>();
