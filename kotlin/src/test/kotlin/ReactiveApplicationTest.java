@@ -1,5 +1,3 @@
-package reactive.examples;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,7 +10,10 @@ import type.JuiceRequest;
 import type.JuiceResponse;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.stream.IntStream;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 
 // Remove spring-boot-starter-web
@@ -201,6 +202,43 @@ class ReactiveApplicationTest {
                         {
                             "juice": "Final juice"
                         }""");
+    }
+
+    @Test
+    void orderJuiceKt() {
+        final JuiceResponse result = webTestClient.post()
+                .uri("kt/reactive/juice")
+                .bodyValue(new JuiceRequest("username-1", "apple-1", "orange-1"))
+                .exchange().returnResult(JuiceResponse.class).getResponseBody().blockFirst();
+
+        assertThat(result.juice()).isEqualTo("Final juice");
+    }
+
+    @Test
+    void getJuiceKt() {
+        webTestClient.get()
+                .uri("kt/reactive/juice")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .json("""
+                        {
+                            "juice":"Final juice"
+                        }""");
+    }
+
+    @Test
+    void getFlowJuiceKt() {
+        List<String> responseBody = webTestClient.get()
+                .uri("kt/reactive/flow/juice")
+                .exchange()
+                .expectStatus().isOk()
+                .returnResult(String.class)
+                .getResponseBody()
+                .collectList()
+                .block();
+        assertThat(responseBody).isEqualTo("Final juice");
+
     }
 
     @Test
