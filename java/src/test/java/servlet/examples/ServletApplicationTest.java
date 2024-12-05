@@ -9,8 +9,6 @@ import org.springframework.web.client.RestClient;
 import type.JuiceRequest;
 import type.JuiceResponse;
 
-import java.util.stream.IntStream;
-
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 
@@ -41,7 +39,7 @@ class ServletApplicationTest {
     void orderJuice() {
         final JuiceResponse result = restClient.post()
                 .uri("servlet/juice")
-                .body(new JuiceRequest("username-1", "apple-1", "orange-1"))
+                .body(new JuiceRequest(1, 1))
                 .retrieve()
                 .toEntity(JuiceResponse.class)
                 .getBody();
@@ -53,7 +51,7 @@ class ServletApplicationTest {
     void orderJuiceCF() {
         final JuiceResponse result = restClient.post()
                 .uri("servlet/cf/juice")
-                .body(new JuiceRequest("username-1", "apple-1", "orange-1"))
+                .body(new JuiceRequest(1, 1))
                 .retrieve()
                 .toEntity(JuiceResponse.class)
                 .getBody();
@@ -65,7 +63,7 @@ class ServletApplicationTest {
     void orderJuiceVT() {
         final JuiceResponse result = restClient.post()
                 .uri("servlet/vt/juice")
-                .body(new JuiceRequest("username-1", "apple-1", "orange-1"))
+                .body(new JuiceRequest(1, 1))
                 .retrieve()
                 .toEntity(JuiceResponse.class)
                 .getBody();
@@ -80,7 +78,7 @@ class ServletApplicationTest {
         final Runnable orderJuice = () -> {
             final JuiceResponse result = restClient.post()
                     .uri("servlet/vt/juice")
-                    .body(new JuiceRequest("username-1", "apple-1", "orange-1"))
+                    .body(new JuiceRequest(1, 1))
                     .retrieve()
                     .toEntity(JuiceResponse.class)
                     .getBody();
@@ -94,37 +92,5 @@ class ServletApplicationTest {
         vt2.join();
     }
 
-
-    @Test
-    void orderJuice2() {
-        final JuiceResponse result = restClient.post()
-                .uri("servlet/juice")
-                .body(new JuiceRequest("username-1", "apple-1", "orange-1"))
-                .retrieve()
-                .toEntity(JuiceResponse.class)
-                .getBody();
-
-        assertThat(result.juice()).isEqualTo("Final juice");
-
-    }
-
-    @Test
-    void order10Juice2() throws InterruptedException {
-        IntStream.range(0, 10).forEach(i -> {
-            String username = "username-" + i;
-            Thread.ofVirtual().start(() -> {
-                final JuiceResponse result = restClient.post()
-                        .uri("servlet/juice")
-                        .body(new JuiceRequest(username, "apple-1", "orange-1"))
-                        .retrieve()
-                        .toEntity(JuiceResponse.class)
-                        .getBody();
-
-                assertThat(result.juice()).isEqualTo("Final juice");
-            });
-        });
-
-        Thread.sleep(3000);
-    }
 
 }

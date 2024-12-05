@@ -12,7 +12,6 @@ import type.JuiceRequest;
 import type.JuiceResponse;
 
 import java.time.Duration;
-import java.util.stream.IntStream;
 
 
 // Remove spring-boot-starter-web
@@ -46,7 +45,36 @@ class ReactiveApplicationTest {
     void orderJuice() {
         webTestClient.post()
                 .uri("reactive/juice")
-                .bodyValue(new JuiceRequest("username-1", "apple-1", "orange-1"))
+                .bodyValue(new JuiceRequest(1, 1))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .json("""
+                        {
+                            "juice": "Juice with Apple juice and Orange juice"
+                        }""");
+    }
+
+    // webflux does not support blocking
+    @Test
+    void orderBlockJuice() {
+        webTestClient.post()
+                .uri("reactive/blockJuice")
+                .bodyValue(new JuiceRequest(1, 1))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .json("""
+                        {
+                            "juice": "Juice with Apple juice and Orange juice"
+                        }""");
+    }
+
+    @Test
+    void orderSleepJuice() {
+        webTestClient.post()
+                .uri("reactive/sleepJuice")
+                .bodyValue(new JuiceRequest(1, 1))
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()
@@ -58,10 +86,9 @@ class ReactiveApplicationTest {
 
     @Test
     void order2Juice() throws InterruptedException {
-
         Runnable order = () -> webTestClient.post()
                 .uri("reactive/juice")
-                .bodyValue(new JuiceRequest("username-1", "apple-1", "orange-1"))
+                .bodyValue(new JuiceRequest(1, 1))
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()
@@ -80,10 +107,61 @@ class ReactiveApplicationTest {
     // -XX:ActiveProcessorCount=1
     @Test
     void order5Juice() throws InterruptedException {
-
         Runnable order = () -> webTestClient.post()
                 .uri("reactive/juice")
-                .bodyValue(new JuiceRequest("username-1", "apple-1", "orange-1"))
+                .bodyValue(new JuiceRequest(1, 1))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .json("""
+                        {
+                            "juice": "Juice with Apple juice and Orange juice"
+                        }""");
+
+        final Thread v1 = Thread.ofVirtual().start(order);
+        final Thread v2 = Thread.ofVirtual().start(order);
+        final Thread v3 = Thread.ofVirtual().start(order);
+        final Thread v4 = Thread.ofVirtual().start(order);
+        final Thread v5 = Thread.ofVirtual().start(order);
+
+        v1.join();
+        v2.join();
+        v3.join();
+        v4.join();
+        v5.join();
+    }
+
+    @Test
+    void order5BlockJuice() throws InterruptedException {
+        Runnable order = () -> webTestClient.post()
+                .uri("reactive/blockJuice")
+                .bodyValue(new JuiceRequest(1, 1))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .json("""
+                        {
+                            "juice": "Juice with Apple juice and Orange juice"
+                        }""");
+
+        final Thread v1 = Thread.ofVirtual().start(order);
+        final Thread v2 = Thread.ofVirtual().start(order);
+        final Thread v3 = Thread.ofVirtual().start(order);
+        final Thread v4 = Thread.ofVirtual().start(order);
+        final Thread v5 = Thread.ofVirtual().start(order);
+
+        v1.join();
+        v2.join();
+        v3.join();
+        v4.join();
+        v5.join();
+    }
+
+    @Test
+    void order5SleepJuice() throws InterruptedException {
+        Runnable order = () -> webTestClient.post()
+                .uri("reactive/sleepJuice")
+                .bodyValue(new JuiceRequest(1, 1))
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()
@@ -148,7 +226,7 @@ class ReactiveApplicationTest {
     void orderJuiceInBatch() {
         webTestClient.post()
                 .uri("reactive/flux/juice")
-                .bodyValue(new JuiceRequest("username-1", "apple-5", "orange-5"))
+                .bodyValue(new JuiceRequest(5, 5))
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isOk()
@@ -177,7 +255,7 @@ class ReactiveApplicationTest {
     void orderJuiceInStream() {
         StepVerifier.create(webTestClient.post()
                         .uri("reactive/flux/juice")
-                        .bodyValue(new JuiceRequest("username-1", "apple-5", "orange-5"))
+                        .bodyValue(new JuiceRequest("username-1", 5, 5))
                         .exchange()
                         .returnResult(JuiceResponse.class)
                         .getResponseBody())
@@ -190,51 +268,30 @@ class ReactiveApplicationTest {
     }
 
     @Test
-    void orderJuice2() {
-        webTestClient.post()
-                .uri("reactive/juice2")
-                .bodyValue(new JuiceRequest("username-1", "apple-1", "orange-1"))
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .json("""
-                        {
-                            "juice": "Final juice"
-                        }""");
-    }
+    void order5JuiceInStream() throws InterruptedException {
+        Runnable order = () -> StepVerifier.create(webTestClient.post()
+                        .uri("reactive/flux/juice")
+                        .bodyValue(new JuiceRequest(5, 5))
+                        .exchange()
+                        .returnResult(JuiceResponse.class)
+                        .getResponseBody())
+                .consumeNextWith(juice -> System.out.println("Received a " + juice))
+                .consumeNextWith(juice -> System.out.println("Received a " + juice))
+                .consumeNextWith(juice -> System.out.println("Received a " + juice))
+                .consumeNextWith(juice -> System.out.println("Received a " + juice))
+                .consumeNextWith(juice -> System.out.println("Received a " + juice))
+                .verifyComplete();
 
-    @Test
-    void order10Juice2() throws InterruptedException {
-        IntStream.range(0, 10).forEach(i -> {
-            String username = "username-" + i;
-            Thread.ofVirtual().start(
-                    () -> webTestClient.post()
-                            .uri("reactive/juice2")
-                            .bodyValue(new JuiceRequest(username, "apple", "orange"))
-                            .exchange()
-                            .expectStatus().isOk()
-                            .expectBody()
-                            .json("""
-                                    {
-                                        "juice": "Final juice"
-                                    }"""));
-        });
+        final Thread v1 = Thread.ofVirtual().start(order);
+        final Thread v2 = Thread.ofVirtual().start(order);
+        final Thread v3 = Thread.ofVirtual().start(order);
+        final Thread v4 = Thread.ofVirtual().start(order);
+        final Thread v5 = Thread.ofVirtual().start(order);
 
-        Thread.sleep(3000);
-    }
-
-    @Test
-    void orderJuiceWithIntermediateDTO() {
-        webTestClient.post()
-                .uri("reactive/juiceWithIntermediateDTO")
-                .bodyValue(new JuiceRequest("username-2", "apple-2", "orange-2"))
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .json("""
-                        {
-                            "juice": "Final juice"
-                        }""");
-
+        v1.join();
+        v2.join();
+        v3.join();
+        v4.join();
+        v5.join();
     }
 }

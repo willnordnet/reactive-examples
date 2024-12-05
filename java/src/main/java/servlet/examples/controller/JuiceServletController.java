@@ -53,68 +53,28 @@ public class JuiceServletController {
         return new JuiceResponse(juice);
     }
 
-    @PostMapping("juice2")
-    public JuiceResponse orderJuice(@RequestBody JuiceRequest request) {
-        var orderId = startOrder(request.username());
-        var appleJuice = blendApple(orderId, request.apple());
-        var orangeJuice = squeezeOrange(orderId, request.orange());
-        var cup = findCup(appleJuice, orangeJuice);
-        print(request.username(), cup);
-        var juice = prepareJuice(cup, appleJuice, orangeJuice, orderId);
-        return new JuiceResponse(juice);
-    }
-
-    private String startOrder(String username) {
-        log.info("Starting order for username {}", username);
-        return "Some orderId";
-    }
-
-    private String blendApple(String apple) {
+    private String blendApple(int apple) {
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        log.info("Blending {}", apple);
+        log.info("Blending {} apple", apple);
         return "Apple juice";
     }
 
-    private String squeezeOrange(String orange) {
+    private String squeezeOrange(int orange) {
         try {
             Thread.sleep(2000);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        log.info("Squeezing {}", orange);
+        log.info("Squeezing {} orange", orange);
         return "Orange juice";
-    }
-
-    private String blendApple(String orderId, String apple) {
-        log.info("Blending {} for order {}", apple, orderId);
-        return "Apple juice";
-    }
-
-    private String squeezeOrange(String orderId, String orange) {
-        log.info("Squeezing {} for order {}", orange, orderId);
-        return "Orange juice";
-    }
-
-    private String findCup(String appleJuice, String orangeJuice) {
-        log.info("Finding a cup for appleJuice {} and orangeJuice {}", appleJuice, orangeJuice);
-        return "Super big cup";
-    }
-
-    private void print(String username, String cup) {
-        log.info("Printing username {} on cup {}", username, cup);
     }
 
     private String prepareJuice(String appleJuice, String orangeJuice) {
         log.info("Preparing juice with {}, {}", appleJuice, orangeJuice);
-        return "Final juice";
-    }
-
-    private String prepareJuice(String cup, String appleJuice, String orangeJuice, String orderId) {
-        log.info("Preparing juice with cup {}, {}, {} and orderId {}", cup, appleJuice, orangeJuice, orderId);
         return "Final juice";
     }
 }

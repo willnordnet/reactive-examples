@@ -34,7 +34,21 @@ class ApplicationTest {
     }
 
     @Test
-    fun getFlowJuiceKt() {
+    fun blockJuice() {
+        val responseBody = webTestClient.get()
+            .uri("kt/reactive/block/juice")
+            .exchange()
+            .expectStatus().isOk
+            .returnResult(String::class.java)
+            .responseBody
+            .collectList()
+            .block()
+
+        assertEquals(listOf("Final juice"), responseBody)
+    }
+
+    @Test
+    fun flowJuice() {
         val responseBody = webTestClient.get()
             .uri("kt/reactive/flow/juice")
             .exchange()
