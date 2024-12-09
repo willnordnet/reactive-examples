@@ -157,6 +157,57 @@ class ReactiveApplicationTest {
         v5.join();
     }
 
+
+    @Test
+    void order5Block5ReactiveJuice() throws InterruptedException {
+        Runnable blockingOrder = () -> webTestClient.post()
+                .uri("reactive/blockJuice")
+                .bodyValue(new JuiceRequest(1, 1))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .json("""
+                        {
+                            "juice": "Juice with Apple juice and Orange juice"
+                        }""");
+
+        Runnable reactiveOrder = () -> webTestClient.post()
+                .uri("reactive/juice")
+                .bodyValue(new JuiceRequest(1, 1))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .json("""
+                        {
+                            "juice": "Juice with Apple juice and Orange juice"
+                        }""");
+
+
+        final Thread v1 = Thread.ofVirtual().start(blockingOrder);
+        final Thread v2 = Thread.ofVirtual().start(blockingOrder);
+//        final Thread v3 = Thread.ofVirtual().start(blockingOrder);
+//        final Thread v4 = Thread.ofVirtual().start(blockingOrder);
+//        final Thread v5 = Thread.ofVirtual().start(blockingOrder);
+
+        final Thread r1 = Thread.ofVirtual().start(reactiveOrder);
+        final Thread r2 = Thread.ofVirtual().start(reactiveOrder);
+//        final Thread r3 = Thread.ofVirtual().start(reactiveOrder);
+//        final Thread r4 = Thread.ofVirtual().start(reactiveOrder);
+//        final Thread r5 = Thread.ofVirtual().start(reactiveOrder);
+
+        v1.join();
+        v2.join();
+//        v3.join();
+//        v4.join();
+//        v5.join();
+
+        r1.join();
+        r2.join();
+//        r3.join();
+//        r4.join();
+//        r5.join();
+    }
+
     @Test
     void order5SleepJuice() throws InterruptedException {
         Runnable order = () -> webTestClient.post()

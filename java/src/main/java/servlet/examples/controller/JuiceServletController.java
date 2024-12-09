@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Mono;
 import type.JuiceRequest;
 import type.JuiceResponse;
 
@@ -51,6 +52,19 @@ public class JuiceServletController {
 
         var juice = prepareJuice(appleJuice.get(), orangeJuice.get());
         return new JuiceResponse(juice);
+    }
+
+    // Computation heavy
+    @PostMapping("primeJuice")
+    public Mono<Boolean> primeJuice(@RequestBody long number) {
+        log.info("Checking if {} is a prime number", number);
+        for (long i = 2; i <= number; i++) {
+            if (number % i == 0) {
+                log.info("{} is a prime number", number);
+                return Mono.just(true);
+            }
+        }
+        return Mono.just(false);
     }
 
     private String blendApple(int apple) {

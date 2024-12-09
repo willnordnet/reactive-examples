@@ -29,11 +29,14 @@ public class JuiceReactiveController {
                 .map(JuiceResponse::new);
     }
 
+    // Block webflux API
     @PostMapping("blockJuice")
     public JuiceResponse blockJuice(@RequestBody JuiceRequest request) {
+        log.info("Preparing block juice with Apple juice and Orange juice");
         return juice(request).block();
     }
 
+    // No webflux API
     @PostMapping("sleepJuice")
     public JuiceResponse sleepJuice() throws InterruptedException {
         Thread.sleep(1000);
@@ -57,8 +60,8 @@ public class JuiceReactiveController {
     // Batch or Stream
     @PostMapping(path = "/flux/juice", produces = {"application/stream+json", "application/json"})
     public Flux<JuiceResponse> fluxJuice(@RequestBody JuiceRequest request) {
-        return blendAppleFlux(request.apple())
-                .zipWith(squeezeOrangeFlux(request.orange()))
+        return blendApples(request.apple())
+                .zipWith(squeezeOranges(request.orange()))
                 .flatMap(tuple -> prepareJuice(tuple.getT1(), tuple.getT2()))
                 .map(JuiceResponse::new);
     }
@@ -76,7 +79,7 @@ public class JuiceReactiveController {
     }
 
     // Blend 5 apples in 5s
-    private Flux<String> blendAppleFlux(int numOfApples) {
+    private Flux<String> blendApples(int numOfApples) {
         log.info("Blending {} apples", numOfApples);
         return Flux.interval(Duration.ofSeconds(1))
                 .map(i -> "apple " + i)
@@ -85,7 +88,7 @@ public class JuiceReactiveController {
     }
 
     // Squeeze 5 oranges in 10s
-    private Flux<String> squeezeOrangeFlux(int numOfOranges) {
+    private Flux<String> squeezeOranges(int numOfOranges) {
         log.info("Squeezing {} oranges", numOfOranges);
         return Flux.interval(Duration.ofSeconds(2))
                 .map(i -> "orange " + i)
