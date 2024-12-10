@@ -17,7 +17,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 @SpringBootTest(classes = ServletApplication.class,
         properties = {
                 "server.tomcat.threads.max=1",
-                "spring.threads.virtual.enabled=false",
+                "spring.threads.virtual.enabled=true",
         },
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class ServletApplicationTest {
@@ -79,14 +79,11 @@ class ServletApplicationTest {
     }
 
 
-    // Note:
-    // The num of tomcat thread pool size only takes effect when it's a servlet application
-    // and the spring.threads.virtual.enabled is set to false
     @Test
-    void order2JuiceVT() throws InterruptedException {
+    void order2JuiceCF() throws InterruptedException {
         final Runnable orderJuice = () -> {
             final JuiceResponse result = restClient.post()
-                    .uri("servlet/vt/juice")
+                    .uri("servlet/cf/juice")
                     .body(new JuiceRequest(1, 1))
                     .retrieve()
                     .toEntity(JuiceResponse.class)
@@ -101,6 +98,9 @@ class ServletApplicationTest {
         vt2.join();
     }
 
+    // Note:
+    // The num of tomcat thread pool size only takes effect when it's a servlet application
+    // and the spring.threads.virtual.enabled is set to false
     @Test
     void order2PrimeJuice() throws InterruptedException {
         final Runnable orderJuice = () -> {
