@@ -15,7 +15,9 @@ import java.time.Duration;
 
 
 // Remove spring-boot-starter-web
-@SpringBootTest(classes = ReactiveApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = ReactiveApplication.class,
+        properties = {"spring.application.json={\"jvmArgs\":\"-XX:ActiveProcessorCount=1\"}"},
+        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class ReactiveApplicationTest {
 
     private WebTestClient webTestClient;
@@ -104,6 +106,7 @@ class ReactiveApplicationTest {
         v2.join();
     }
 
+    // The minimal worker thread pool size is 4
     // -XX:ActiveProcessorCount=1
     @Test
     void order5Juice() throws InterruptedException {

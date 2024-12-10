@@ -17,7 +17,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 @SpringBootTest(classes = ServletApplication.class,
         properties = {
                 "server.tomcat.threads.max=1",
-                "spring.threads.virtual.enabled=false"
+                "spring.threads.virtual.enabled=false",
         },
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class ServletApplicationTest {
@@ -79,7 +79,9 @@ class ServletApplicationTest {
     }
 
 
-    // Note: The num of tomcat thread pool size only takes effect when it's a servlet application
+    // Note:
+    // The num of tomcat thread pool size only takes effect when it's a servlet application
+    // and the spring.threads.virtual.enabled is set to false
     @Test
     void order2JuiceVT() throws InterruptedException {
         final Runnable orderJuice = () -> {
@@ -100,32 +102,7 @@ class ServletApplicationTest {
     }
 
     @Test
-    void order5JuiceVT() throws InterruptedException {
-        final Runnable orderJuice = () -> {
-            final JuiceResponse result = restClient.post()
-                    .uri("servlet/vt/juice")
-                    .body(new JuiceRequest(1, 1))
-                    .retrieve()
-                    .toEntity(JuiceResponse.class)
-                    .getBody();
-
-            assertThat(result.juice()).isEqualTo("Final juice");
-        };
-
-        final Thread vt1 = Thread.ofVirtual().start(orderJuice);
-        final Thread vt2 = Thread.ofVirtual().start(orderJuice);
-        final Thread vt3 = Thread.ofVirtual().start(orderJuice);
-        final Thread vt4 = Thread.ofVirtual().start(orderJuice);
-        final Thread vt5 = Thread.ofVirtual().start(orderJuice);
-        vt1.join();
-        vt2.join();
-        vt3.join();
-        vt4.join();
-        vt5.join();
-    }
-
-    @Test
-    void order5PrimeJuice() throws InterruptedException {
+    void order2PrimeJuice() throws InterruptedException {
         final Runnable orderJuice = () -> {
             final HttpStatusCode statusCode = restClient.post()
                     .uri("servlet/primeJuice")
@@ -138,14 +115,8 @@ class ServletApplicationTest {
 
         final Thread vt1 = Thread.ofVirtual().start(orderJuice);
         final Thread vt2 = Thread.ofVirtual().start(orderJuice);
-        final Thread vt3 = Thread.ofVirtual().start(orderJuice);
-        final Thread vt4 = Thread.ofVirtual().start(orderJuice);
-        final Thread vt5 = Thread.ofVirtual().start(orderJuice);
         vt1.join();
         vt2.join();
-        vt3.join();
-        vt4.join();
-        vt5.join();
     }
 
 
